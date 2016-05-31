@@ -1,0 +1,21 @@
+{
+  "name": "discodoge",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "body-parser": "^1.15.1",
+    "express": "^4.13.4",
+    "oauth": "^0.9.14"
+  },
+  "dependencies": {
+    "dotenv": "^2.0.0"
+  }
+}
