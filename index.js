@@ -24,17 +24,13 @@ var oauth = new OAuth.OAuth(
     null,
     'HMAC-SHA1'
 );
-
 oauth.get(
     options.host + options.path,
     process.env.TWITTER_ACCESS_TOKEN_KEY,
     process.env.TWITTER_ACCESS_TOKEN_SECRET,
-    function(e, d, r) {
-        if (e) {
-            console.log('Error: ' + e);
-        }
-        // data = JSON.parse(data);
-        // console.log(JSON.stringify(data));
-        console.log(r);
+    function(error, data, response) {
+        if (error) console.log('Error: ' + error);
+        data = JSON.parse(data);
+        console.log(JSON.stringify(data, 0, 2));
     }
 )
