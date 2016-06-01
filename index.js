@@ -9,6 +9,9 @@ var request = require('request'),
 // some globals
 var imgPath = '';
 var imgName = '';
+var d = new Date();
+var time = d.getHours() + ':' + d.getMinutes();
+
 
 // timing factors
 var minutes = 15,
@@ -100,9 +103,10 @@ var letsTweet = function() {
     });
 }
 
+console.log("Time since last run: " + time);
 // Regular 15minute request....eventually.
 setInterval(function() {
-    console.log("Time since last run: " + new Date());
+    console.log("Time since last run: " + time);
     // Use the authorised connection to get the
     // content from requested twitter acc ID
     // AKA lets make magic happen...
