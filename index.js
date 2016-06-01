@@ -10,6 +10,10 @@ var request = require('request'),
 var imgPath = '';
 var imgName = '';
 
+// timing factors
+var minutes = 15,
+    timeDelay = minutes * 60 * 1000;
+
 // Our twitter configs
 var totalCount = 2,
 	options = {
@@ -75,25 +79,43 @@ var download = function(uri, filename, callback) {
 }
 
 var letsTweet = function() {
-    client.post(twitterPostPath, { status: imgName }, function(error, tweet, response){
-        if(error) console.log(error);
-        console.log(tweet);  // Tweet body.
-        console.log(response);  // Raw response object.
+    var data = require('fs').readFileSync('img/' + imgName + '.jpg');
+
+    // Make post request on media endpoint. Pass file data as media parameter
+    client.post('media/upload', {media: data}, function(error, media, response) {
+
+      if (!error) {
+        var status = {
+          status: 'I am a tweet',
+          media_ids: media.media_id_string // Pass the media id string
+        }
+
+        client.post('statuses/update', status, function(error, tweet, response) {
+          if (!error) {
+            console.log(tweet);
+          }
+        });
+
+      }
     });
 }
 
-// Use the authorised connection to get the
-// content from requested twitter acc ID
-// AKA lets make magic happen...
-oauth.get(
-    twitterReqPath,
-    process.env.TWITTER_ACCESS_TOKEN_KEY,
-    process.env.TWITTER_ACCESS_TOKEN_SECRET,
-    function(error, data, response) {
-        if (error) console.log('Error: ' + error);
-        var data = JSON.parse(data);
-        imgPath = data[0].entities.media[0].media_url;
-        imgName = data[0].entities.media[0].id;
-        download(imgPath, imgName + '.jpg', letsTweet);
-    }
-);
+// Regular 15minute request....eventually.
+setInterval(function() {
+    console.log("Time since last run: " + new Date());
+    // Use the authorised connection to get the
+    // content from requested twitter acc ID
+    // AKA lets make magic happen...
+    oauth.get(
+        twitterReqPath,
+        process.env.TWITTER_ACCESS_TOKEN_KEY,
+        process.env.TWITTER_ACCESS_TOKEN_SECRET,
+        function(error, data, response) {
+            if (error) console.log('Error: ' + error);
+            var data = JSON.parse(data);
+            imgPath = data[0].entities.media[0].media_url;
+            imgName = data[0].entities.media[0].id;
+            download(imgPath, imgName + '.jpg', letsTweet);
+        }
+    );
+}, timeDelay);
