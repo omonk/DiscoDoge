@@ -14,6 +14,12 @@ var totalCount = 2,
 		count: 2
 	};
 
+// max_id = "Returns results with an ID less than (that is, older than) or equal to the specified ID."
+// This can be updated on load I spose, so we only get the latest tweet, if our request is max_id=XXXX
+// then we'd only receive MAX 2 entries surely...
+
+// since_id - "Returns results with an ID greater than (that is, more recent than) the specified ID."
+// if we cache the most recent ID then we'll only be return data
 var twitterReqPath = url.format({
     protocol: 'https',
     host: 'api.twitter.com',
@@ -42,13 +48,6 @@ var client = new Twitter({
     access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
 });
 
-// max_id = "Returns results with an ID less than (that is, older than) or equal to the specified ID."
-// This can be updated on load I spose, so we only get the latest tweet, if our request is max_id=XXXX
-// then we'd only receive MAX 2 entries surely...
-
-// since_id - "Returns results with an ID greater than (that is, more recent than) the specified ID."
-// if we cache the most recent ID then we'll only be return data
-
 // Set our OAuth up
 var oauth = new OAuth.OAuth(
     'https://api.twitter.com/oauth/request_token',
@@ -76,7 +75,7 @@ var download = function(uri, filename, callback) {
         console.log(res.headers['content-length']);
     })
     .pipe(fs.createWriteStream('img/' + filename))
-    .on('close', callback)
+    .on('close', callback())
 }
 
 // Use the authorised connection to get the
@@ -90,8 +89,6 @@ oauth.get(
         var data = JSON.parse(data);
         var imgPath = data[0].entities.media[0].media_url;
         var imgName = data[0].entities.media[0].id + '.jpg';
-        download(imgPath, imgName, function() {
-            console.log('fired');
-        });
+        download(imgPath, imgName, letsTweet(12));
     }
 );
