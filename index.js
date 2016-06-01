@@ -6,6 +6,10 @@ var request = require('request'),
     Twitter = require('twitter'),
     env = require('dotenv').load();
 
+// some globals
+var imgPath = '';
+var imgName = '';
+
 // Our twitter configs
 var totalCount = 2,
 	options = {
@@ -59,14 +63,6 @@ var oauth = new OAuth.OAuth(
     'HMAC-SHA1'
 );
 
-var letsTweet = function(imgName) {
-    client.post(twitterPostPath, { status: imgName}, function(error, tweet, response){
-        if(error) console.log(error);
-        console.log(tweet);  // Tweet body.
-        console.log(response);  // Raw response object.
-    });
-}
-
 var download = function(uri, filename, callback) {
     request
     .get(uri)
@@ -75,11 +71,20 @@ var download = function(uri, filename, callback) {
         console.log(res.headers['content-length']);
     })
     .pipe(fs.createWriteStream('img/' + filename))
-    .on('close', callback())
+    .on('close', callback)
+}
+
+var letsTweet = function() {
+    client.post(twitterPostPath, { status: imgName }, function(error, tweet, response){
+        if(error) console.log(error);
+        console.log(tweet);  // Tweet body.
+        console.log(response);  // Raw response object.
+    });
 }
 
 // Use the authorised connection to get the
 // content from requested twitter acc ID
+// AKA lets make magic happen...
 oauth.get(
     twitterReqPath,
     process.env.TWITTER_ACCESS_TOKEN_KEY,
@@ -87,8 +92,8 @@ oauth.get(
     function(error, data, response) {
         if (error) console.log('Error: ' + error);
         var data = JSON.parse(data);
-        var imgPath = data[0].entities.media[0].media_url;
-        var imgName = data[0].entities.media[0].id + '.jpg';
-        download(imgPath, imgName, letsTweet(12));
+        imgPath = data[0].entities.media[0].media_url;
+        imgName = data[0].entities.media[0].id;
+        download(imgPath, imgName + '.jpg', letsTweet);
     }
 );
