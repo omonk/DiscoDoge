@@ -1,4 +1,5 @@
 var request = require('request');
+var fs = require('fs');
 var OAuth = require('oauth');
 var Twitter = require('twitter');
 var env = require('dotenv').load();
@@ -38,6 +39,18 @@ var oauth = new OAuth.OAuth(
     'HMAC-SHA1'
 );
 
+
+var download = function(uri, filename, callback) {
+    request
+    .get(uri)
+    .on('response', function(res){
+        // console.log(res.statusCode);
+        console.log(res.headers['content-type']);
+        console.log(res.headers['content-length']);
+    })
+    .pipe(fs.createWriteStream('img/' + filename)).on('close', callback)
+}
+
 // Use the authorised connection to get the
 // content from requested twitter acc ID
 oauth.get(
@@ -45,9 +58,12 @@ oauth.get(
     process.env.TWITTER_ACCESS_TOKEN_KEY,
     process.env.TWITTER_ACCESS_TOKEN_SECRET,
     function(error, data, response) {
-        console.log(options.host + options.queries);
         if (error) console.log('Error: ' + error);
-        data = JSON.parse(data);
-        console.log(JSON.stringify(data, 0, 2));
+        var data = JSON.parse(data);
+        var imgPath = data[0].entities.media[0].media_url;
+        var imgName = data[0].entities.media[0].id;
+        download(imgPath, imgName + '.jpg', function() {
+            console.log('fired');
+        });
     }
 )
