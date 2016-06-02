@@ -7,6 +7,7 @@ var request = require('request'),
     env = require('dotenv').load();
 
 // some globals
+var lastPostedTweet = ''; // Sets ID of most recent tweet from our source, used to check against whether to tweet or not 
 var imgPath = '';
 var imgName = '';
 var d = new Date();
@@ -18,9 +19,9 @@ var minutes = 15,
     timeDelay = minutes * 60 * 1000;
 
 // Our twitter configs
-var totalCount = 2,
-	options = {
-	    host: 'https://api.twitter.com',
+// count and be replaced with since_id
+var options = {
+        host: 'https://api.twitter.com',
 		ID: "730505014150582272",
 		count: 2
 	};
@@ -95,7 +96,7 @@ var letsTweet = function() {
 
         client.post('statuses/update', status, function(error, tweet, response) {
           if (!error) {
-            console.log(tweet);
+            console.log('Successful tweet!');
           }
         });
 
