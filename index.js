@@ -7,15 +7,12 @@ var request = require('request'),
     env = require('dotenv').load();
 
 // some globals
-var lastPostedTweet = ''; // Sets ID of most recent tweet from our source, used to check against whether to tweet or not 
+var mostRecentTweet = ''; // Sets ID of most recent tweet from our source, used to check against whether to tweet or not
 var imgPath = '';
 var imgName = '';
-var d = new Date();
-var time = d.getHours() + ':' + d.getMinutes();
-
 
 // timing factors
-var minutes = 15,
+var minutes = 1,
     timeDelay = minutes * 60 * 1000;
 
 // Our twitter configs
@@ -104,10 +101,13 @@ var letsTweet = function() {
     });
 }
 
-console.log("Time since last run: " + time);
+
 // Regular 15minute request....eventually.
 setInterval(function() {
-    console.log("Time since last run: " + time);
+    var d = new Date()
+
+    console.log("Time since last run: " + d.getHours() + ':' + d.getMinutes());
+
     // Use the authorised connection to get the
     // content from requested twitter acc ID
     // AKA lets make magic happen...
@@ -116,11 +116,22 @@ setInterval(function() {
         process.env.TWITTER_ACCESS_TOKEN_KEY,
         process.env.TWITTER_ACCESS_TOKEN_SECRET,
         function(error, data, response) {
+
             if (error) console.log('Error: ' + error);
+
             var data = JSON.parse(data);
+
+            mostRecentTweet = data[0].id;
             imgPath = data[0].entities.media[0].media_url;
             imgName = data[0].entities.media[0].id;
-            download(imgPath, imgName + '.jpg', letsTweet);
+
+            console.log('most recent tweet ID: ' + mostRecentTweet);
+            if (mostRecentTweet != mostRecentTweet) {
+                download(imgPath, imgName + '.jpg', letsTweet);
+            } else {
+                console.log('This dog\'s already been discoed...');
+            }
+
         }
     );
 }, timeDelay);
