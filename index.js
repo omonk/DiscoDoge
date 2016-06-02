@@ -7,7 +7,10 @@ var request = require('request'),
     env = require('dotenv').load();
 
 // some globals
-var mostRecentTweet = ''; // Sets ID of most recent tweet from our source, used to check against whether to tweet or not
+
+// Sets ID of most recent tweet from our source, used to check against whether to tweet or not
+var mostRecentTweet = '',
+    currentTweet = '';
 var imgPath = '';
 var imgName = '';
 
@@ -93,7 +96,7 @@ var letsTweet = function() {
 
         client.post('statuses/update', status, function(error, tweet, response) {
           if (!error) {
-            console.log('Successful tweet!');
+            console.log('LETS DISCO!');
           }
         });
 
@@ -121,13 +124,14 @@ setInterval(function() {
 
             var data = JSON.parse(data);
 
-            mostRecentTweet = data[0].id;
+            currentTweet = data[0].id;
             imgPath = data[0].entities.media[0].media_url;
             imgName = data[0].entities.media[0].id;
 
             console.log('most recent tweet ID: ' + mostRecentTweet);
-            if (mostRecentTweet != mostRecentTweet) {
+            if (mostRecentTweet != currentTweet) {
                 download(imgPath, imgName + '.jpg', letsTweet);
+                mostRecentTweet = data[0].id;
             } else {
                 console.log('This dog\'s already been discoed...');
             }
